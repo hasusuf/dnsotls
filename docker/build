@@ -1,0 +1,25 @@
+#!/bin/sh
+
+set -e
+
+apt-get update \
+    && apt-get install dnsutils -y \
+    && go get github.com/hasusuf/dnsotls
+
+cat << 'EOF' > /usr/local/bin/docker-entrypoint.sh
+#!/bin/bash
+
+set -e
+
+echo "nameserver 127.0.0.1" > /etc/resolv.conf
+
+exec "$@"
+
+EOF
+
+chmod +x /usr/local/bin/docker-entrypoint.sh
+
+apt-get remove --purge -y \
+    && apt-get autoclean \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
